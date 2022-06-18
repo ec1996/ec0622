@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 public class Tool
 {
     /**
-     * The String identifier for the tool.
+     * The {@link String} identifier for the tool.
      */
     private String toolCode;
 
@@ -47,6 +47,39 @@ public class Tool
     private boolean available;
 
     /**
+     * Constructor for {@link Tool}.
+     * @param toolCode
+     *         The {@link String} identifier for the tool.
+     * @param toolType
+     *         The {@link ToolType}.
+     * @param toolBrand
+     *         The {@link ToolBrand}.
+     * @param dailyCharge
+     *         The {@link BigDecimal} daily charge
+     * @param weekdayCharge
+     *         True if the daily rental fee applies on weekdays, false otherwise.
+     * @param weekendCharge
+     *         True if the daily rental fee applies on weekends, false otherwise.
+     * @param holidayCharge
+     *         True if the daily rental fee applies on holidays, false otherwise.
+     * @param available
+     *         True if the tool is available to rent, false otherwise.
+     */
+    public Tool(final String toolCode, final ToolType toolType, final ToolBrand toolBrand,
+                final BigDecimal dailyCharge, final boolean weekdayCharge, final boolean weekendCharge,
+                final boolean holidayCharge, final boolean available)
+    {
+        this.toolCode = toolCode;
+        this.toolType = toolType;
+        this.toolBrand = toolBrand;
+        this.dailyCharge = dailyCharge;
+        this.weekdayCharge = weekdayCharge;
+        this.weekendCharge = weekendCharge;
+        this.holidayCharge = holidayCharge;
+        this.available = available;
+    }
+
+    /**
      * @return True if the daily rental fee applies on holidays, false otherwise.
      */
     public boolean isHolidayCharge()
@@ -83,7 +116,7 @@ public class Tool
     }
 
     /**
-     * @return the String identifier for the tool.
+     * @return the {@link String} identifier for the tool.
      */
     public String getToolCode()
     {
@@ -91,7 +124,7 @@ public class Tool
     }
 
     /**
-     * Sets the String identifier for the tool.
+     * Sets the {@link String} identifier for the tool.
      * @param toolCode
      *         The {@link String} tool code.
      */
