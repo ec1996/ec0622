@@ -1,5 +1,6 @@
 /**
  * Represents tool brands
+ * @author Eli Charleville
  */
 public enum ToolBrand
 {

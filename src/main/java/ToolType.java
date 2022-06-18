@@ -1,5 +1,6 @@
 /**
  * Represents types of tools for rental.
+ * @author Eli Charleville
  */
 public enum ToolType
 {
