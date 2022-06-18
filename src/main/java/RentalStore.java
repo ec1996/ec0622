@@ -151,7 +151,7 @@ public class RentalStore
     }
 
     /**
-     * Calculates the Independence day and labor day holidays.
+     * Calculates the Independence day and labor day holidays Based on the checkout date and due date.
      * @param checkoutDate
      *         The {@link LocalDate} checkout date. Must be before dueDate.
      * @param dueDate
