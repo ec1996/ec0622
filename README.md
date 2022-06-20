@@ -5,3 +5,4 @@ This project was built using maven version 3.6.3. To run the tests for the proje
 ```
 mvn test
 ```
+from the root directory of the repository.
