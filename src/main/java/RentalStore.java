@@ -52,13 +52,14 @@ public class RentalStore
     {
         if (rentalDays < 1)
         {
-            throw new IllegalArgumentException("The rental day count must be greater than or equal to 1. Rental day " + "count: " + rentalDays);
+            throw new IllegalArgumentException("The rental day count must be greater than or equal to 1. Rental day " +
+                    "count: " + rentalDays);
         }
 
         if (discountPercentage > 100 || discountPercentage < 0)
         {
             throw new IllegalArgumentException("The discount percentage value must be a number from 0 to 100. " +
-                    "discount percentage value: " + discountPercentage);
+                    "Discount percentage value: " + discountPercentage);
         }
 
         final Tool tool = toolsByToolCode.get(toolCode);
@@ -133,18 +134,7 @@ public class RentalStore
 
         if (!holidayCharge)
         {
-            final Set<LocalDate> holidays = calculateHolidays(checkoutDate, dueDate);
-
-            if (!holidays.isEmpty())
-            {
-                for (LocalDate holiday : holidays)
-                {
-                    if (holiday.isAfter(checkoutDate) && holiday.compareTo(dueDate) <= 0)
-                    {
-                        chargeDays--;
-                    }
-                }
-            }
+            chargeDays -= getNumberOfHolidayInstances(checkoutDate, dueDate);
         }
 
         return chargeDays;
@@ -158,19 +148,19 @@ public class RentalStore
      *         The {@link LocalDate} due date. Must be after checkoutDate.
      * @return The potentially empty {@link Set} of {@link LocalDate} holidays of independence day and labor day.
      */
-    private Set<LocalDate> calculateHolidays(LocalDate checkoutDate, LocalDate dueDate)
+    private int getNumberOfHolidayInstances(LocalDate checkoutDate, LocalDate dueDate)
     {
         assert dueDate.isAfter(checkoutDate) : "dueDate must be after checkOutDate";
-
-        final Set<LocalDate> holidays = new HashSet<>();
 
         final int checkoutDateYear = checkoutDate.getYear();
         final int dueDateYear = dueDate.getYear();
 
+        int holidayInstances = 0;
+
         for (int year = checkoutDateYear; year <= dueDateYear; year++)
         {
-            holidays.add(LocalDate.of(year, Month.SEPTEMBER, 1).with(TemporalAdjusters.dayOfWeekInMonth(1,
-                    DayOfWeek.MONDAY)));
+            final LocalDate laborDay = LocalDate.of(year, Month.SEPTEMBER, 1).with(TemporalAdjusters.dayOfWeekInMonth(1,
+                    DayOfWeek.MONDAY));
 
             LocalDate independenceDay = LocalDate.of(year, Month.JULY, 4);
             if (independenceDay.getDayOfWeek() == SATURDAY)
@@ -181,9 +171,16 @@ public class RentalStore
                 independenceDay = independenceDay.plusDays(1);
             }
 
-            holidays.add(independenceDay);
+            if (laborDay.isAfter(checkoutDate) && laborDay.compareTo(dueDate) <= 0)
+            {
+                holidayInstances++;
+            }
+            if (independenceDay.isAfter(checkoutDate) && independenceDay.compareTo(dueDate) <= 0)
+            {
+                holidayInstances++;
+            }
         }
 
-        return holidays;
+        return holidayInstances;
     }
 }

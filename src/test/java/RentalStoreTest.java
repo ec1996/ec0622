@@ -50,6 +50,9 @@ class RentalStoreTest
         assertTrue(rentalAgreement.getDiscountAmount().compareTo(BigDecimal.valueOf(0.40)) == 0);
         assertTrue(rentalAgreement.getPreDiscountCharge().compareTo(BigDecimal.valueOf(3.98)) == 0);
         assertTrue(rentalAgreement.getFinalCharge().compareTo(BigDecimal.valueOf(3.58)) == 0);
+        assertEquals(2, rentalAgreement.getChargeDays());
+        assertEquals(LocalDate.of(2020, 7, 5), rentalAgreement.getDueDate());
+        assertFalse(toolLADW.isAvailable());
     }
 
     @Test
@@ -67,6 +70,9 @@ class RentalStoreTest
         assertTrue(rentalAgreement.getDiscountAmount().compareTo(BigDecimal.valueOf(1.12)) == 0);
         assertTrue(rentalAgreement.getPreDiscountCharge().compareTo(BigDecimal.valueOf(4.47)) == 0);
         assertTrue(rentalAgreement.getFinalCharge().compareTo(BigDecimal.valueOf(3.35)) == 0);
+        assertEquals(3, rentalAgreement.getChargeDays());
+        assertEquals(LocalDate.of(2015, 7, 7), rentalAgreement.getDueDate());
+        assertFalse(toolCHNS.isAvailable());
     }
 
     @Test
@@ -84,6 +90,9 @@ class RentalStoreTest
         assertTrue(rentalAgreement.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)) == 0);
         assertTrue(rentalAgreement.getPreDiscountCharge().compareTo(BigDecimal.valueOf(8.97)) == 0);
         assertTrue(rentalAgreement.getFinalCharge().compareTo(BigDecimal.valueOf(8.97)) == 0);
+        assertEquals(3, rentalAgreement.getChargeDays());
+        assertEquals(LocalDate.of(2015, 9, 9), rentalAgreement.getDueDate());
+        assertFalse(toolJAKD.isAvailable());
     }
 
     @Test
@@ -101,6 +110,9 @@ class RentalStoreTest
         assertTrue(rentalAgreement.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)) == 0);
         assertTrue(rentalAgreement.getPreDiscountCharge().compareTo(BigDecimal.valueOf(14.95)) == 0);
         assertTrue(rentalAgreement.getFinalCharge().compareTo(BigDecimal.valueOf(14.95)) == 0);
+        assertEquals(5, rentalAgreement.getChargeDays());
+        assertEquals(LocalDate.of(2015, 7, 11), rentalAgreement.getDueDate());
+        assertFalse(toolJAKR.isAvailable());
     }
 
     @Test
@@ -118,6 +130,9 @@ class RentalStoreTest
         assertTrue(rentalAgreement.getDiscountAmount().compareTo(BigDecimal.valueOf(1.50)) == 0);
         assertTrue(rentalAgreement.getPreDiscountCharge().compareTo(BigDecimal.valueOf(2.99)) == 0);
         assertTrue(rentalAgreement.getFinalCharge().compareTo(BigDecimal.valueOf(1.49)) == 0);
+        assertEquals(1, rentalAgreement.getChargeDays());
+        assertEquals(LocalDate.of(2020, 7, 6), rentalAgreement.getDueDate());
+        assertFalse(toolJAKR.isAvailable());
     }
 
     /**
@@ -135,9 +150,76 @@ class RentalStoreTest
 
 
         final RentalAgreement rentalAgreement = rentalStore.checkout("JAKR", 4, 50, LocalDate.of(2021, 7, 2));
-        
+
         assertTrue(rentalAgreement.getDiscountAmount().compareTo(BigDecimal.valueOf(1.50)) == 0);
         assertTrue(rentalAgreement.getPreDiscountCharge().compareTo(BigDecimal.valueOf(2.99)) == 0);
         assertTrue(rentalAgreement.getFinalCharge().compareTo(BigDecimal.valueOf(1.49)) == 0);
+        assertEquals(1, rentalAgreement.getChargeDays());
+        assertEquals(LocalDate.of(2021, 7, 6), rentalAgreement.getDueDate());
+        assertFalse(toolJAKR.isAvailable());
+    }
+
+    /**
+     * Test for when a requested tool is unavailable, then {@link RentalStore#checkout(String, int, int, LocalDate)}
+     * returns null.
+     */
+    @Test
+    public void test_ToolIsUnavailable()
+    {
+        Tool toolJAKR = new Tool("JAKR", ToolType.JACKHAMMER, ToolBrand.RIDGID, BigDecimal.valueOf(2.99), true,
+                false, false, false);
+
+        final Map<String, Tool> toolsByToolCode = Map.of("JAKR", toolJAKR);
+
+        final RentalStore rentalStore = new RentalStore(toolsByToolCode);
+
+        final RentalAgreement rentalAgreement = rentalStore.checkout("JAKR", 4, 50, LocalDate.of(2021, 7, 2));
+
+        assertNull(rentalAgreement);
+    }
+
+    /**
+     * Tests that when {@link RentalStore#checkout(String, int, int, LocalDate) is called with rentalDays less than
+     * 1, then a {@link IllegalArgumentException} is thrown with an expected message
+     */
+    @Test
+    public void test_rentalDaysLessThanOne()
+    {
+        Tool toolJAKD = new Tool("JAKD", ToolType.JACKHAMMER, ToolBrand.DEWALT, BigDecimal.valueOf(2.99), true,
+                false, false, true);
+
+        final Map<String, Tool> toolsByToolCode = Map.of("JAKD", toolJAKD);
+
+        final RentalStore rentalStore = new RentalStore(toolsByToolCode);
+
+        final Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                rentalStore.checkout("JAKD", 0, 10, LocalDate.of(2015, 9, 3)));
+
+
+        assertEquals("The rental day count must be greater than or equal to 1. Rental day " +
+                "count: 0", exception.getMessage());
+    }
+
+    /**
+     * Tests that when a tool is rented for multiple years, that holidays are accounted for renting that tool each year.
+     */
+    @Test
+    public void test_HolidaysNotChargedOverMultipleYears()
+    {
+        final Tool toolLADW = new Tool("LADW", ToolType.LADDER, ToolBrand.WERNER, BigDecimal.valueOf(1.99), true,
+                true, false, true);
+
+        final Map<String, Tool> toolsByToolCode = Map.of("LADW", toolLADW);
+
+        final RentalStore rentalStore = new RentalStore(toolsByToolCode);
+
+        final RentalAgreement rentalAgreement = rentalStore.checkout("LADW", 730, 10, LocalDate.of(2017, 12, 31));
+
+        assertTrue(rentalAgreement.getDiscountAmount().compareTo(BigDecimal.valueOf(144.47)) == 0);
+        assertTrue(rentalAgreement.getPreDiscountCharge().compareTo(BigDecimal.valueOf(1444.74)) == 0);
+        assertTrue(rentalAgreement.getFinalCharge().compareTo(BigDecimal.valueOf(1300.27)) == 0);
+        assertEquals(726, rentalAgreement.getChargeDays());
+        assertEquals(LocalDate.of(2019, 12, 31), rentalAgreement.getDueDate());
+        assertFalse(toolLADW.isAvailable());
     }
 }
