@@ -1,4 +1,5 @@
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -117,21 +118,11 @@ public class RentalAgreement
         this.discountPercent = discountPercent;
     }
 
-    /**
-     * Formats a {@link BigDecimal} into a US Dollar currency format.
-     * @param bigDecimal
-     *         The {@link BigDecimal}.
-     * @return The formatted {@link String} in US Dollar currency format.
-     */
-    public static String currencyFormat(BigDecimal bigDecimal)
-    {
-        return NumberFormat.getInstance(Locale.US).format(bigDecimal);
-    }
-
     @Override
     public String toString()
     {
         final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yy");
+        final DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
 
         return
                 "Tool code: " + toolCode + "\n" +
@@ -140,11 +131,107 @@ public class RentalAgreement
                         "Rental days: " + rentalDays + "\n" +
                         "Checkout date: " + checkoutDate.format(dateTimeFormatter) + "\n" +
                         "Due date: " + dueDate.format(dateTimeFormatter) + "\n" +
-                        "Daily rental charge: $" + currencyFormat(dailyCharge) + "\n" +
+                        "Daily rental charge: " + decimalFormat.format(dailyCharge) + "\n" +
                         "Charge days: " + chargeDays + "\n" +
-                        "Pre-discount charge: $" + currencyFormat(preDiscountCharge) + "\n" +
+                        "Pre-discount charge: " + decimalFormat.format(preDiscountCharge) + "\n" +
                         "Discount percent: " + discountPercent + "%" + "\n" +
-                        "Discount amount: $" + currencyFormat(discountAmount) + "\n" +
-                        "Final charge: $" + currencyFormat(finalCharge) + "\n";
+                        "Discount amount: " + decimalFormat.format(discountAmount) + "\n" +
+                        "Final charge: " + decimalFormat.format(finalCharge) + "\n";
+    }
+
+    /**
+     * @return The {@link String} tool code.
+     */
+    public String getToolCode()
+    {
+        return toolCode;
+    }
+
+    /**
+     * @return The {@link ToolType}.
+     */
+    public ToolType getToolType()
+    {
+        return toolType;
+    }
+
+    /**
+     * @return The {@link ToolBrand}.
+     */
+    public ToolBrand getToolBrand()
+    {
+        return toolBrand;
+    }
+
+    /**
+     * @return The number of rental days.
+     */
+    public int getRentalDays()
+    {
+        return rentalDays;
+    }
+
+    /**
+     * @return The number of charge days.
+     */
+    public int getChargeDays()
+    {
+        return chargeDays;
+    }
+
+    /**
+     * @return The {@link LocalDate} checkout date.
+     */
+    public LocalDate getCheckoutDate()
+    {
+        return checkoutDate;
+    }
+
+    /**
+     * @return The {@link LocalDate} due date.
+     */
+    public LocalDate getDueDate()
+    {
+        return dueDate;
+    }
+
+    /**
+     * @return The {@link BigDecimal} daily charge.
+     */
+    public BigDecimal getDailyCharge()
+    {
+        return dailyCharge;
+    }
+
+    /**
+     * @return The {@link BigDecimal} pre-discount charge.
+     */
+    public BigDecimal getPreDiscountCharge()
+    {
+        return preDiscountCharge;
+    }
+
+    /**
+     * @return The {@link BigDecimal} discount amount.
+     */
+    public BigDecimal getDiscountAmount()
+    {
+        return discountAmount;
+    }
+
+    /**
+     * @return The {@link BigDecimal} final amount.
+     */
+    public BigDecimal getFinalCharge()
+    {
+        return finalCharge;
+    }
+
+    /**
+     * @return The discount percent in format: %<discount percent>
+     */
+    public int getDiscountPercent()
+    {
+        return discountPercent;
     }
 }
